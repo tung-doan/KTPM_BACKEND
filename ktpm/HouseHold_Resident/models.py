@@ -20,7 +20,12 @@ class Citizen(models.Model):
         db_column='household_id'
     )
     full_name = models.CharField(max_length=100)
-    alias = models.CharField(max_length=50, blank=True, null=True)
+    gender = models.CharField(
+        max_length=10,
+        choices=[('male', 'Nam'), ('female', 'Nữ')],
+        blank=True,
+        null=True
+    )
     birth_date = models.DateField(blank=True, null=True)
     birth_place = models.CharField(max_length=100, blank=True, null=True)
     origin_place = models.CharField(max_length=100, blank=True, null=True)
