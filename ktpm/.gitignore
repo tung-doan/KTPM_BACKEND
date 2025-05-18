@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Môi trường ảo
+venv/
+env/
+ENV/
+.VENV/
+.venv/
+
+# VS Code
+.vscode/
+
+# Hệ điều hành
+.DS_Store
+Thumbs.db
+
+# File cấu hình bí mật
+.env
+
+# Các file log
+*.log
