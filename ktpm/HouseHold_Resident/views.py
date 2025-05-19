@@ -97,3 +97,15 @@ def add_citizen(request):
         return JsonResponse({"status": "error", "message": "Household not found"}, status=400)
     except Exception as e:
         return JsonResponse({"status": "error", "message": str(e)}, status=400)  
+    
+@csrf_exempt
+@require_http_methods(["DELETE"])
+def delete_citizen(request,id_card_number ):
+    try:
+        citizen = Citizen.objects.get(id_card_number=id_card_number)
+        citizen.delete()
+        return JsonResponse({"status": "success"})
+    except Citizen.DoesNotExist:
+        return JsonResponse({"status": "error", "message": "Citizen not found"}, status=400)
+    except Exception as e:
+        return JsonResponse({"status": "error", "message": str(e)}, status=400)
