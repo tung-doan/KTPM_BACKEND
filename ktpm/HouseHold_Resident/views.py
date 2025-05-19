@@ -1,8 +1,12 @@
 from django.db.models import Count
-from .models import Citizen
+from .models import Citizen, Household
 from django.http import JsonResponse
 from django.db.models import Q
 from datetime import date
+from django.views.decorators.csrf import csrf_exempt
+import json
+from django.views.decorators.http import require_http_methods
+
 
 def citizens(request):
     # Lấy các tham số lọc từ query string
@@ -66,3 +70,30 @@ def statistics(request):
         "criteria": criteria,
         "data": result
     })
+    
+@csrf_exempt
+@require_http_methods(["POST"])
+def add_citizen(request):
+    try:
+        data = json.loads(request.body)
+        household_id = data.get('household_id')
+        household = Household.objects.get(pk=household_id)
+        citizen = Citizen.objects.create(
+            household=household,
+            full_name=data.get('full_name'),
+            gender=data.get('gender'),
+            birth_date=data.get('birth_date'),
+            birth_place=data.get('birth_place'),
+            origin_place=data.get('origin_place'),
+            job=data.get('job'),
+            workplace=data.get('workplace'),
+            id_card_number=data.get('id_card_number'),
+            id_card_issue_date=data.get('id_card_issue_date'),
+            id_card_issue_place=data.get('id_card_issue_place'),
+            previous_residence=data.get('previous_residence')
+        )
+        return JsonResponse({"status": "success", "citizen_id": citizen.citizen_id})
+    except Household.DoesNotExist:
+        return JsonResponse({"status": "error", "message": "Household not found"}, status=400)
+    except Exception as e:
+        return JsonResponse({"status": "error", "message": str(e)}, status=400)  
