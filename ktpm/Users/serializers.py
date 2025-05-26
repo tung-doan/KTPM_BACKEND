@@ -2,6 +2,8 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
 from django.utils.translation import gettext_lazy as _
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.response import Response
+from rest_framework import status
 from .models import User
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -89,19 +91,30 @@ class LoginSerializer(serializers.Serializer):
         return attrs
 
 class LogoutSerializer(serializers.Serializer):
-    refresh = serializers.CharField(required=True)
+    def post(self, request):
+        refresh_token = request.COOKIES.get('refresh_token')
 
-    def validate(self, attrs):
+        if refresh_token is None:
+            return Response(
+                {"detail": "Không tìm thấy refresh_token trong cookie"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         try:
-            refresh_token = attrs['refresh']
             token = RefreshToken(refresh_token)
             token.blacklist()
         except Exception:
-            raise serializers.ValidationError(
-                "Token không hợp lệ hoặc đã hết hạn",
-                code='invalid_token'
+            return Response(
+                {"detail": "Token không hợp lệ hoặc đã hết hạn"},
+                status=status.HTTP_400_BAD_REQUEST
             )
-        return attrs
+
+        # Optional: Xóa cookie khỏi trình duyệt
+        response = Response({"detail": "Đăng xuất thành công"}, status=status.HTTP_205_RESET_CONTENT)
+        response.delete_cookie('refresh_token')
+        response.delete_cookie('access_token')  # nếu bạn có access_token trong cookie
+
+        return response
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     manager = serializers.PrimaryKeyRelatedField(
