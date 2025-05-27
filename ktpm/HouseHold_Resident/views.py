@@ -16,7 +16,11 @@ class CitizenViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         try:
             data = super().create(request, *args, **kwargs)
-            
+            household_id = request.data.get('household')
+            if household_id:
+                household = Household.objects.get(pk=household_id)
+                household.number_people += 1
+                household.save()
             return Response(
                 {"message": "Citizen created successfully",
                  "data":data.data},
