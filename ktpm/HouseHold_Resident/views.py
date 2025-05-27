@@ -1,22 +1,15 @@
-from django.db.models import Count
 from .models import Citizen, Household
-from django.http import JsonResponse
-from django.db.models import Q
-from datetime import date
-from django.views.decorators.csrf import csrf_exempt
-import json
-from django.views.decorators.http import require_http_methods
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import CitizenSerializer,HouseholdSerializer
 from rest_framework import viewsets
+from .permissions import HouseHold_ResidentPermission
 
 
 class CitizenViewSet(viewsets.ModelViewSet):
     queryset = Citizen.objects.all()
     serializer_class = CitizenSerializer
-    
+    permission_classes = [HouseHold_ResidentPermission]
     def get_queryset(self):
         return Citizen.objects.all()
     
@@ -61,7 +54,8 @@ class CitizenViewSet(viewsets.ModelViewSet):
 class HouseholdViewSet(viewsets.ModelViewSet):
     queryset = Household.objects.all()
     serializer_class = HouseholdSerializer
-    
+    permission_classes = [HouseHold_ResidentPermission]
+
     def get_queryset(self):
         return Household.objects.all()
     
